@@ -1,5 +1,51 @@
 # Changelog
 
+## 1.9.2
+
+* Fix for overzealous API requests in author list (#417)
+* Prevent empty entries (#475)
+* Restored customisable Key Events widget title (#372)
+* Restore deletion confirmation for entries (#482)
+* Performance improvements to the build (#495)
+
+props [cain](https://github.com/cain), [GaryJones](https://github.com/GaryJones), [jasonagnew](https://github.com/jasonagnew), [kevinlisota](https://github.com/kevinlisota), [lidocaine](https://github.com/lidocaine), [maxhartshorn](https://github.com/maxhartshorn), [no-sws](https://github.com/no-sws), [paulschreiber](https://github.com/paulschreiber), [philipjohn](https://github.com/philipjohn), [sathyapulse](https://github.com/sathyapulse), [scottblackburn](https://github.com/scottblackburn), [sboisvert](https://github.com/sboisvert), [tomjn](https://github.com/tomjn)
+
+## 1.9.1
+
+* Multiple coding standards fixes
+* Removes unused debug code
+* Fix rendering embeds upon entry updates
+* Avoid null dereference in `get_user_data_for_json()`
+* Improvements to code review process
+
+props, [cain](https://github.com/cain), [GaryJones](https://github.com/GaryJones), [maevelander](https://github.com/maevelander), [paulschreiber](https://github.com/paulschreiber), [philipjohn](https://github.com/philipjohn), [rgllm](https://github.com/rgllm), [rogertheriault](https://github.com/rogertheriault)
+
+## 1.9
+
+* Round out polling timestamp for improved performance (#496)
+* Use the new core jshint rules, instead of ours (#120)
+* Add LiveBlogPosting Schema (#337)
+* AMP Support (#450)
+* Move is_robot function to javascript (#266)
+* JS api actions can now be configured to send cross domain requests (#463)
+* Fix deprecated notice about non-static function (#484)
+* Remove deprecated lazyload JS (#498)
+* Readme updates (#512)
+
+props [david-binda](https://github.com/david-binda), [GaryJones](https://github.com/GaryJones), [jacklenox](https://github.com/jacklenox), [jasonagnew](https://github.com/jasonagnew), [joshbetz](https://github.com/joshbetz), [justnorris](https://github.com/justnorris), [jvpcode](https://github.com/jvpcode), [lovestulip](https://github.com/lovestulip), [maevelander](https://github.com/maevelander), [maxhartshorn](https://github.com/maxhartshorn), [mjangda](https://github.com/mjangda), [mikeselander](https://github.com/mikeselander), [nb](https://github.com/nb), [paulschreiber](https://github.com/paulschreiber), [philipjohn](https://github.com/philipjohn), [rogertheriault](https://github.com/rogertheriault), [sboisvert](https://github.com/sboisvert), Scott Blackburn, [tessaneedham](https://github.com/tessaneedham)
+
+## 1.8.2
+
+* Fix issue with time format (#424)
+* Adds check around the jetpack is_mobile flag (#428)
+* Restore current user back in to localised scripts (#430)
+* Cast liveblog rewrite version before checks (#439)
+* Document the minimum PHP version (#447)
+* Fix bug where pagination did not update (#433)
+* Fix GMT offsets in entry times (#432)
+
+props [justnorris](https://github.com/justnorris), [mjangda](https://github.com/mjangda), [paulschreiber](https://github.com/paulschreiber), [philipjohn](https://github.com/philipjohn), [scottblackburn](https://github.com/scottblackburn)
+
 ## 1.8.1
 
 * Fix bug with changing contributors

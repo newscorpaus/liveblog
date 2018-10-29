@@ -6,7 +6,8 @@ import { connect } from 'react-redux';
 import * as apiActions from '../actions/apiActions';
 import * as userActions from '../actions/userActions';
 import { triggerOembedLoad, timeAgo, formattedTime } from '../utils/utils';
-import EditorContainer from '../containers/EditorContainer';
+import Editor from '../components/Editor';
+import DeleteConfirmation from '../components/DeleteConfirmation';
 
 class EntryContainer extends Component {
   constructor(props) {
@@ -23,6 +24,15 @@ class EntryContainer extends Component {
       this.node.scrollIntoView({ block: 'start', behavior: 'instant' });
       this.props.resetScrollOnEntry(`id_${this.props.entry.id}`);
     };
+    this.state = {
+      showPopup: false,
+    };
+  }
+
+  togglePopup() {
+    this.setState({
+      showPopup: !this.state.showPopup,
+    });
   }
 
   componentDidMount() {
@@ -35,6 +45,9 @@ class EntryContainer extends Component {
     const { activateScrolling } = this.props.entry;
     if (activateScrolling && activateScrolling !== prevProps.entry.activateScrolling) {
       this.scrollIntoView();
+    }
+    if (this.props.entry.render !== prevProps.entry.render) {
+      triggerOembedLoad(this.node);
     }
   }
 
@@ -55,8 +68,7 @@ class EntryContainer extends Component {
         }
         <button
           className="liveblog-btn liveblog-btn-small liveblog-btn-delete"
-          onClick={this.delete}
-        >
+          onClick={this.togglePopup.bind(this)}>
           Delete
         </button>
       </footer>
@@ -74,11 +86,19 @@ class EntryContainer extends Component {
       >
         <aside className="liveblog-entry-aside">
           <a className="liveblog-meta-time" href={entry.share_link} target="_blank">
-            <span>{timeAgo(entry.entry_time, config.utc_offset, config.date_format)}</span>
+            <span>{timeAgo(entry.entry_time)}</span>
             <span>{formattedTime(entry.entry_time, config.utc_offset, config.date_format)}</span>
           </a>
         </aside>
         <div className="liveblog-entry-main">
+          {this.state.showPopup ?
+            <DeleteConfirmation
+              text="Are you sure you want to delete this entry?"
+              onConfirmDelete={this.delete}
+              onCancel={this.togglePopup.bind(this)}
+            />
+            : null
+          }
           {
             (entry.authors && entry.authors.length > 0) &&
             <header className="liveblog-meta-authors">
@@ -101,7 +121,7 @@ class EntryContainer extends Component {
             this.isEditing()
               ? (
                 <div className="liveblog-entry-edit">
-                  <EditorContainer entry={entry} isEditing={true} />
+                  <Editor entry={entry} isEditing={true} />
                 </div>
               )
               : (
@@ -127,6 +147,7 @@ EntryContainer.propTypes = {
   deleteEntry: PropTypes.func,
   activateScrolling: PropTypes.bool,
   resetScrollOnEntry: PropTypes.func,
+  showPopup: PropTypes.bool,
 };
 
 const mapStateToProps = state => state;

@@ -14,11 +14,13 @@ const webpackConfig = {
 
   entry: {
     app: path.join(__dirname, paths.entry),
+    amp: path.join(__dirname, './src/react/amp.js'),
   },
 
   output: {
     path: path.join(__dirname, paths.out),
     filename: '[name].js',
+    chunkFilename: '[name].bundle.js',
   },
 
   module: {
@@ -46,21 +48,32 @@ const webpackConfig = {
         use: ExtractTextPlugin.extract({
           fallback: 'style-loader',
           use: [
-            'css-loader',
+            {
+              loader: 'css-loader',
+              options: {
+                sourceMap: false,
+                minimize: true,
+              },
+            },
             {
               loader: 'postcss-loader',
               options: {
                 plugins: () => [
                   autoprefixer({
                     browsers: [
-                      'last 3 version',
+                      'last 1 version',
                       'ie >= 11',
                     ],
                   }),
                 ],
               },
             },
-            'sass-loader',
+            {
+              loader: 'sass-loader',
+              options: {
+                sourceMap: false,
+              },
+            },
           ],
         }),
       },
@@ -88,6 +101,7 @@ const webpackConfig = {
       __TEST__: JSON.stringify(process.env.NODE_ENV === 'test'),
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
     }),
+    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
   ],
 };
 
