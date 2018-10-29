@@ -1036,6 +1036,8 @@ if ( ! class_exists( 'WPCOM_Liveblog' ) ) :
 						'image_nonce'                  => wp_create_nonce( 'media-form' ),
 						'default_image_size'           => apply_filters( 'liveblog_default_image_size', self::DEFAULT_IMAGE_SIZE ),
 
+						'pinned_post_limit'			   => apply_filters( 'liveblog_pinned_post_limit', 0 ),
+
 						'latest_entry_timestamp'       => self::$latest_timestamp,
 						'latest_entry_id'              => self::$entry_query->get_latest_id(),
 						'timestamp'                    => time(),

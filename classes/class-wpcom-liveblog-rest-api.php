@@ -166,6 +166,50 @@ class WPCOM_Liveblog_Rest_Api {
 		);
 
 		/*
+		 * Pin a single entry for a post by entry ID
+		 *
+		 * /<post_id>/pin/<entry_id>
+		 *
+		 */
+		register_rest_route(
+			self::$api_namespace, '/(?P<post_id>\d+)/pin/(?P<entry_id>\d+)([/]*)',
+			array(
+				'methods'  => WP_REST_Server::READABLE,
+				'callback' => array( 'WPCOM_Liveblog', 'pin_single_entry' ),
+				'args'     => array(
+					'post_id'  => array(
+						'required' => true,
+					),
+					'entry_id' => array(
+						'required' => true,
+					),
+				),
+			)
+		);
+
+		/*
+		 * Unpin a single entry for a post by entry ID
+		 *
+		 * /<post_id>/unpin/<entry_id>
+		 *
+		 */
+		register_rest_route(
+			self::$api_namespace, '/(?P<post_id>\d+)/unpin/(?P<entry_id>\d+)([/]*)',
+			array(
+				'methods'  => WP_REST_Server::READABLE,
+				'callback' => array( 'WPCOM_Liveblog', 'unpin_single_entry' ),
+				'args'     => array(
+					'post_id'  => array(
+						'required' => true,
+					),
+					'entry_id' => array(
+						'required' => true,
+					),
+				),
+			)
+		);
+
+		/*
 		 * Take entry content and return it with pretty formatting
 		 *
 		 * /<post_id>/preview

@@ -20,6 +20,17 @@ class WPCOM_Liveblog_Entry {
 	const CONTRIBUTORS_META_KEY = 'liveblog_contributors';
 
 	/**
+	 * @var string
+	 * If the entry is pinned, we store that pinned status under this meta key
+	 */
+	const PINNED_ENTRY_META_KEY = 'liveblog_entry_is_pinned';
+
+	/**
+	 * @var string Meta key for storing the headline, if any.
+	 */
+	const HEADLINE_META_KEY = 'liveblog_headline';
+
+	/**
 	 * @var string Whether or not an entry should show an author
 	 */
 	const HIDE_AUTHORS_KEY = 'liveblog_hide_authors';
@@ -138,6 +149,7 @@ class WPCOM_Liveblog_Entry {
 			'css_classes' => $css_classes,
 			'timestamp'   => $this->get_timestamp(),
 			'authors'     => self::get_authors( $entry_id ),
+			'post_pinned_status'     => self::get_pinned_entry_status( $entry_id ),
 			'entry_time'  => $this->get_comment_date_gmt( 'U', $entry_id ),
 			'share_link'  => $share_link,
 		);
@@ -410,6 +422,24 @@ class WPCOM_Liveblog_Entry {
 	}
 
 	/**
+	 * Pin a single Liveblog entry by entry ID
+	 *
+	 * @param $entry_id
+	 */
+	public static function pin_single_entry( $entry_id ) {
+		update_comment_meta( $entry_id, self::PINNED_ENTRY_META_KEY, true );
+	}
+
+	/**
+	 * Unpin a single Liveblog entry by entry ID
+	 *
+	 * @param $entry_id
+	 */
+	public static function unpin_single_entry( $entry_id ) {
+		delete_comment_meta( $entry_id, self::PINNED_ENTRY_META_KEY );
+	}
+
+	/**
 	 * Store the contributors as comment meta.
 	 *
 	 * @param int $comment_id The comment id for the meta we should update.
@@ -490,6 +520,16 @@ class WPCOM_Liveblog_Entry {
 		$contributors = self::get_contributors_for_json( $comment_id );
 
 		return array_merge( $author, $contributors );
+	}
+
+	/**
+	 * Return the pinned status for a given entry
+	 * @param $entry_id
+	 * @return bool
+	 */
+	public static function get_pinned_entry_status($entry_id ) {
+		$pinned_post_status = get_comment_meta( $entry_id, self::PINNED_ENTRY_META_KEY );
+		return (bool) $pinned_post_status;
 	}
 
 	/**
