@@ -4,7 +4,7 @@
  * Plugin Name: Liveblog
  * Plugin URI: http://wordpress.org/extend/plugins/liveblog/
  * Description: Empowers website owners to provide rich and engaging live event coverage to a large, distributed audience.
- * Version:     1.9.2
+ * Version:     1.9.5
  * Author:      WordPress.com VIP, Big Bite Creative and contributors
  * Author URI: https://github.com/Automattic/liveblog/graphs/contributors
  * Text Domain: liveblog
@@ -26,7 +26,7 @@ if ( ! class_exists( 'WPCOM_Liveblog' ) ) :
 	final class WPCOM_Liveblog {
 
 		/** Constants *************************************************************/
-		const VERSION                 = '1.9.2';
+		const VERSION                 = '1.9.5';
 		const REWRITES_VERSION        = 1;
 		const MIN_WP_VERSION          = '4.4';
 		const MIN_WP_REST_API_VERSION = '4.4';
@@ -54,6 +54,7 @@ if ( ! class_exists( 'WPCOM_Liveblog' ) ) :
 		public static $post_id                = null;
 		private static $entry_query           = null;
 		private static $do_not_cache_response = false;
+		private static $cache_control_max_age = null;
 		private static $custom_template_path  = null;
 
 		public static $is_rest_api_call        = false;
@@ -429,9 +430,11 @@ if ( ! class_exists( 'WPCOM_Liveblog' ) ) :
 			$latest_timestamp = null;
 			$entries_for_json = array();
 
-			// Do not cache if it's too soon
-			if ( $end_timestamp > time() ) {
-				self::$do_not_cache_response = true;
+			$now = time();
+
+			// If end timestamp is in future, set a cache TTL until it's not
+			if ( $end_timestamp > $now ) {
+				self::$cache_control_max_age = $end_timestamp - $now;
 			}
 
 			if ( empty( self::$entry_query ) ) {
@@ -907,8 +910,6 @@ if ( ! class_exists( 'WPCOM_Liveblog' ) ) :
 					case 'delete':
 						unset( $flatten[ $id ] );
 						break;
-					default:
-						continue;
 				}
 			}
 
@@ -1188,19 +1189,6 @@ if ( ! class_exists( 'WPCOM_Liveblog' ) ) :
 			$liveblog_output = apply_filters( 'liveblog_add_to_content', $liveblog_output, $content, self::$post_id );
 
 			return $content . wp_kses_post( $liveblog_output );
-		}
-
-		/**
-		 * Return the posting area for the end-user to liveblog from
-		 *
-		 * @return string
-		 */
-		private static function get_editor_output() {
-			if ( ! self::is_liveblog_editable() ) {
-				return;
-			}
-
-			return self::get_template_part( 'liveblog-form.php' );
 		}
 
 		/**
@@ -1680,6 +1668,9 @@ if ( ! class_exists( 'WPCOM_Liveblog' ) ) :
 		public static function prevent_caching_if_needed() {
 			if ( self::$do_not_cache_response ) {
 				nocache_headers();
+			} else if ( self::$cache_control_max_age ) {
+				header( 'Cache-control: max-age=' . self::$cache_control_max_age );
+				header( 'Expires: ' . gmdate( 'D, d M Y H:i:s \G\M\T', time() + self::$cache_control_max_age ) );
 			}
 		}
 
@@ -1730,40 +1721,6 @@ if ( ! class_exists( 'WPCOM_Liveblog' ) ) :
 			} elseif ( strpos( $size, 'g' ) !== false ) {
 				$bytes = intval( $size ) * 1024 * 1024 * 1024;
 			}
-
-			return $bytes;
-		}
-
-		/**
-		 * Convert bytes to hour
-		 *
-		 * @param string $bytes
-		 * @return string
-		 */
-		private static function convert_bytes_to_hr( $bytes ) {
-			$units = array(
-				0 => 'B',
-				1 => 'kB',
-				2 => 'MB',
-				3 => 'GB',
-			);
-			$log   = log( $bytes, 1024 );
-			$power = (int) $log;
-			$size  = pow( 1024, $log - $power );
-
-			return $size . $units[ $power ];
-		}
-
-		/**
-		 * Get the maximum upload file size
-		 *
-		 * @see wp_max_upload_size()
-		 * @return string
-		 */
-		private static function max_upload_size() {
-			$u_bytes = self::convert_hr_to_bytes( ini_get( 'upload_max_filesize' ) );
-			$p_bytes = self::convert_hr_to_bytes( ini_get( 'post_max_size' ) );
-			$bytes   = apply_filters( 'upload_size_limit', min( $u_bytes, $p_bytes ), $u_bytes, $p_bytes );
 
 			return $bytes;
 		}
@@ -1863,7 +1820,7 @@ if ( ! class_exists( 'WPCOM_Liveblog' ) ) :
 				return;
 			}
 
-			$metadata = self::get_liveblog_metadata( array(), get_the_ID() );
+			$metadata = self::get_liveblog_metadata( array(), get_post() );
 			if ( empty( $metadata ) ) {
 				return;
 			}
